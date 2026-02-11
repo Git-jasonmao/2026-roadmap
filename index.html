@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 Expert Roadmap | Mobile</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --ds-blue-dark: #001d3d;
+            --ds-blue-mid: #003566;
+            --ds-blue-light: #00a1e0;
+            --ds-accent: #00f2ff;
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #e0e0e0;
+            --catia: #005686; --enovia: #00a1e0; --simulia: #7e52a0; --delmia: #e63027; --other: #455a64;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 50%, #1a2a44 0%, #0b0f19 100%);
+            color: var(--text-main); margin: 0; padding: 15px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 响应式网格系统 */
+        .container { 
+            max-width: 1300px; 
+            margin: auto; 
+            display: grid; 
+            grid-template-columns: 350px 1fr; 
+            gap: 20px; 
+        }
+
+        /* --- 顶部 Executive Header (响应式) --- */
+        .executive-header {
+            grid-column: 1 / span 2;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 161, 224, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            min-height: 160px;
+        }
+
+        /* Profile Area */
+        .profile-content { display: flex; align-items: center; gap: 15px; width: 100%; }
+        .photo { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--ds-accent); padding: 2px; object-fit: cover; flex-shrink: 0; }
+        .title-line-1 { font-size: 0.75rem; color: var(--text-main); letter-spacing: 2px; text-transform: uppercase; font-weight: 300; }
+        .title-line-2 { font-size: 1.4rem; color: var(--ds-accent); font-weight: 800; margin: 2px 0 6px 0; }
+        .user-role { font-size: 0.75rem; color: var(--ds-blue-light); margin-bottom: 8px; }
+
+        .btn-report {
+            background: linear-gradient(45deg, #005686, #00a1e0);
+            color: white; border: none; padding: 10px; border-radius: 6px;
+            cursor: pointer; font-weight: bold; font-size: 0.7rem; width: 100%;
+        }
+
+        /* YTD Analysis Labels */
+        .chart-container { width: 90px; height: 90px; margin-right: 15px; }
+        .report-text .ytd-label { font-size: 0.75rem; color: #8da9c4; letter-spacing: 1px; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        .report-text h2 { margin: 0; font-size: 2.2rem; color: var(--ds-accent); line-height: 1; }
+        .report-text .sub-label { margin-top: 5px; color: var(--ds-blue-light); font-size: 0.65rem; }
+
+        /* --- 手机端布局适配 (Media Queries) --- */
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .executive-header { 
+                grid-column: 1; 
+                grid-template-columns: 1fr; /* 头部卡片在手机端纵向排列 */
+            }
+            .header-card { min-height: auto; padding: 15px; }
+            .sidebar { 
+                position: relative; 
+                top: 0; 
+                height: auto; 
+                max-height: 400px; /* 限制手机端资源池高度 */
+            }
+            .log-grid { grid-template-columns: 1fr; gap: 10px; } /* 足迹变为单列 */
+            .photo { width: 60px; height: 60px; }
+            .report-text h2 { font-size: 1.8rem; }
+        }
+
+        /* Sidebar & Pool */
+        .sidebar {
+            background: var(--card-bg); padding: 20px; border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1); height: calc(100vh - 300px);
+            overflow-y: auto; position: sticky; top: 20px;
+        }
+        .add-zone { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; margin-bottom: 20px; }
+        .add-zone input, .add-zone select {
+            width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #333;
+            background: #0b0f19; color: white; border-radius: 6px; font-size: 1rem; /* 增加字体防止手机缩放 */
+        }
+
+        .pool-item {
+            background: rgba(255,255,255,0.03); padding: 12px; margin-bottom: 8px; border-radius: 8px;
+            cursor: pointer; font-size: 0.9rem; display: flex; align-items: center;
+        }
+
+        /* Footprint */
+        .month-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .month-header { border-bottom: 1px solid var(--ds-blue-mid); margin-bottom: 12px; padding-bottom: 6px; color: var(--ds-accent); font-weight: bold; }
+        
+        .done-item {
+            background: rgba(0, 161, 224, 0.08); padding: 10px; border-radius: 6px; margin-bottom: 6px; 
+            display: flex; justify-content: space-between; font-size: 0.85rem; align-items: center;
+        }
+        .undo-btn { color: #ff4d4d; font-size: 1.2rem; padding: 0 10px; }
+        
+        .tag { font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; color: white; margin-right: 8px; font-weight: bold; }
+        .CATIA { background: var(--catia); } .ENOVIA { background: var(--enovia); } .SIMULIA { background: var(--simulia); } .DELMIA { background: var(--delmia); } .OTHER { background: var(--other); }
+        
+        .article-input { width: 100%; border: 1px solid #333; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; color: var(--ds-accent); font-size: 0.9rem; box-sizing: border-box; }
+        
+        .save-tip { position: fixed; bottom: 20px; right: 20px; background: var(--ds-blue-light); color: white; padding: 8px 15px; border-radius: 30px; display: none; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="executive-header">
+        <div class="header-card">
+            <div class="profile-content">
+                <img src="my_photo.jpg" class="photo" onerror="this.src='https://via.placeholder.com/80?text=Expert'">
+                <div class="profile-main">
+                    <div class="title-line-1">Competency</div>
+                    <div class="title-line-2">2026 ROADMAP</div>
+                    <button class="btn-report" onclick="exportReport()">✨ Export Annual Report</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-card">
+            <div class="chart-container"><canvas id="certChart"></canvas></div>
+            <div class="report-text">
+                <span class="ytd-label">YTD Certs</span>
+                <h2 id="certRate">0%</h2>
+            </div>
+        </div>
+        
+        <div class="header-card">
+            <div class="chart-container"><canvas id="articleChart"></canvas></div>
+            <div class="report-text">
+                <span class="ytd-label">YTD Articles</span>
+                <h2 id="articleRate">0%</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="add-zone">
+            <select id="newBrand"><option value="ENOVIA">ENOVIA</option><option value="CATIA">CATIA</option><option value="SIMULIA">SIMULIA</option><option value="DELMIA">DELMIA</option><option value="OTHER">OTHER</option></select>
+            <input type="text" id="newName" placeholder="New cert name...">
+            <button style="width:100%; padding:12px; cursor:pointer; background:var(--ds-blue-mid); color:white; border:none; border-radius:6px;" onclick="addNewCert()">ADD TO POOL</button>
+        </div>
+        <div style="font-size:0.7rem; color:#444; margin-bottom:10px; text-align:center;">--- RESOURCE POOL ---</div>
+        <div id="certPool"></div>
+    </div>
+
+    <div id="footprint"></div>
+</div>
+
+<div id="saveTip" class="save-tip">SYNCED ✅</div>
+
+<script>
+    const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    let certPie, articlePie;
+
+    const initialPool = [
+        {b:"CATIA", n:"Systems Engineering & V+R Testing"}, {b:"CATIA", n:"Knowledge Capture & Reuse"},
+        {b:"CATIA", n:"Weight & Balance Engineering"}, {b:"CATIA", n:"Electrical & Fluids Engineering"},
+        {b:"ENOVIA", n:"Collaborative Product Architecture"}, {b:"ENOVIA", n:"Collaborative Product Planning"},
+        {b:"ENOVIA", n:"Collaborative Change Management"}, {b:"ENOVIA", n:"Program & Project Management"},
+        {b:"ENOVIA", n:"Collaborative Design"}, {b:"ENOVIA", n:"Collaborative Engineering"},
+        {b:"ENOVIA", n:"Virtual Product Development"}, {b:"ENOVIA", n:"Planning"},
+        {b:"ENOVIA", n:"Collaborative Validation"}, {b:"ENOVIA", n:"Collaborative Config Management"},
+        {b:"ENOVIA", n:"Collaborative Materials Compliance"}, {b:"ENOVIA", n:"IP Protection & Export Control"},
+        {b:"SIMULIA", n:"Knowledge & Capture & Reuse"}, {b:"SIMULIA", n:"DOE of I-Beam"},
+        {b:"SIMULIA", n:"Modeling & Simulation (MODSIM)"}, {b:"SIMULIA", n:"Electric Motor Cooling"},
+        {b:"SIMULIA", n:"High Speed Connector Design"}, {b:"SIMULIA", n:"Multiphysics Modeling"},
+        {b:"SIMULIA", n:"Simulation for Designers"}, {b:"DELMIA", n:"Virtual Factory"},
+        {b:"DELMIA", n:"Ergonomics"}, {b:"DELMIA", n:"Collaborative Operations"},
+        {b:"DELMIA", n:"Operations Engineering Articulate"}, {b:"DELMIA", n:"Lean Management"},
+        {b:"DELMIA", n:"Industry Process Experiences"}, {b:"DELMIA", n:"Collab Ops Articulate"}
+    ];
+
+    let state = JSON.parse(localStorage.getItem('expert_mobile_v1')) || {
+        pool: initialPool.map((c, i) => ({ ...c, id: Date.now() + i })),
+        completed: {}, articles: {}
+    };
+
+    function initCharts() {
+        const opt = { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 1000 } };
+        certPie = new Chart(document.getElementById('certChart'), { type: 'doughnut', data: { datasets: [{ data: [0, 100], backgroundColor: ['#00f2ff', '#1a2a44'], borderWidth: 0 }] }, options: opt });
+        articlePie = new Chart(document.getElementById('articleChart'), { type: 'doughnut', data: { datasets: [{ data: [0, 100], backgroundColor: ['#4CAF50', '#1a2a44'], borderWidth: 0 }] }, options: opt });
+    }
+
+    function updateUI() {
+        const total = state.pool.length;
+        const done = Object.keys(state.completed).length;
+        document.getElementById('certRate').innerText = (Math.round((done/total)*100) || 0) + '%';
+        certPie.data.datasets[0].data = [done, total - done]; certPie.update();
+
+        const artDone = Object.values(state.articles).filter(v => v.trim()).length;
+        document.getElementById('articleRate').innerText = Math.round((artDone/11)*100) + '%';
+        articlePie.data.datasets[0].data = [artDone, 11 - artDone]; articlePie.update();
+
+        document.getElementById('certPool').innerHTML = state.pool.filter(c => !state.completed[c.id])
+            .map(c => `<div class="pool-item" onclick="completeCert(${c.id})"><span class="tag ${c.b}">${c.b}</span><span>${c.n}</span></div>`).join('');
+
+        const foot = document.getElementById('footprint'); foot.innerHTML = '';
+        for(let i=1; i<12; i++) { // From Feb
+            const mNum = i + 1;
+            const mC = state.pool.filter(c => state.completed[c.id] == mNum);
+            const card = document.createElement('div'); card.className = 'month-card';
+            card.innerHTML = `<div class="month-header">${MONTH_NAMES[i]} 2026</div>
+                <div class="log-grid">
+                    <div>${mC.map(c => `<div class="done-item"><span><span class="tag ${c.b}">${c.b}</span>${c.n}</span><span class="undo-btn" onclick="undoCert(${c.id})">×</span></div>`).join('') || '<span style="color:#444;font-size:0.8rem;">No Records</span>'}</div>
+                    <div><input type="text" class="article-input" placeholder="Article Title..." value="${state.articles[mNum] || ''}" oninput="saveArticle(${mNum}, this.value)"></div>
+                </div>`;
+            foot.appendChild(card);
+        }
+    }
+
+    function addNewCert() {
+        const n = document.getElementById('newName').value; if(!n) return;
+        state.pool.push({ id: Date.now(), b: document.getElementById('newBrand').value, n });
+        document.getElementById('newName').value = ''; save();
+    }
+    function completeCert(id) { state.completed[id] = new Date().getMonth() + 1; save(); }
+    function undoCert(id) { delete state.completed[id]; save(); }
+    function saveArticle(m, v) { state.articles[m] = v; localStorage.setItem('expert_mobile_v1', JSON.stringify(state)); updateUI(); }
+    function save() { localStorage.setItem('expert_mobile_v1', JSON.stringify(state)); updateUI(); showTip(); }
+    function showTip() { const t = document.getElementById('saveTip'); t.style.display = 'block'; setTimeout(()=>t.style.display='none',1000); }
+
+    function exportReport() {
+        const done = state.pool.filter(c => state.completed[c.id]);
+        const arts = Object.entries(state.articles).filter(([m, t]) => t.trim());
+        let reportWin = window.open('', '_blank');
+        reportWin.document.write(`<html><head><title>2026 Summary</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;}h1{color:#00a1e0;border-bottom:2px solid #00a1e0;}li{margin-bottom:10px;}</style></head><body>
+            <h1>2026 EXPERT GROWTH REPORT</h1>
+            <p>🏆 Certifications: ${done.length} | 📝 Articles: ${arts.length}</p>
+            <h2>Cert Milestones</h2><ul>${done.map(c => `<li>[${c.b}] ${c.n}</li>`).join('')}</ul>
+            <h2>Articles</h2><ul>${arts.map(([m, t]) => `<li>${MONTH_NAMES[m-1]}: ${t}</li>`).join('')}</ul>
+        </body></html>`);
+    }
+
+    window.onload = () => { initCharts(); updateUI(); };
+</script>
+</body>
+</html>
