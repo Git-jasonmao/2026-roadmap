@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 Expert Roadmap | Cloud Sync</title>
+    <title>2026 Expert Roadmap | Full Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -31,11 +31,11 @@
             display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); min-height: 180px;
         }
 
-        /* Profile & Action */
+        /* Profile & Title Area */
         .profile-content { display: flex; align-items: center; gap: 15px; width: 100%; }
-        .photo { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--ds-accent); padding: 2px; object-fit: cover; }
+        .photo { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--ds-accent); padding: 3px; object-fit: cover; }
         .profile-main { flex: 1; }
-        .title-line-1 { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; }
+        .title-line-1 { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; }
         .title-line-2 { font-size: 1.5rem; color: var(--ds-accent); font-weight: 800; margin: 2px 0; text-shadow: 0 0 10px rgba(0,242,255,0.3); }
         .sync-status { font-size: 0.65rem; color: #8da9c4; margin-bottom: 10px; font-style: italic; }
 
@@ -44,10 +44,10 @@
             padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.7rem; width: 100%; text-transform: uppercase;
         }
 
-        /* YTD Analysis */
+        /* Chart Area */
         .chart-container { width: 100px; height: 100px; margin-right: 15px; }
+        .report-text .ytd-label { font-size: 0.8rem; color: #8da9c4; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
         .report-text h2 { margin: 0; font-size: 2.4rem; color: var(--ds-accent); line-height: 1; }
-        .ytd-label { font-size: 0.8rem; color: #8da9c4; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
 
         /* Responsive */
         @media (max-width: 900px) {
@@ -57,23 +57,34 @@
             .log-grid { grid-template-columns: 1fr; gap: 10px; }
         }
 
-        /* Sidebar Pool */
+        /* --- Sidebar & New Item Function --- */
         .sidebar { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* 重新加回的新增功能区 */
+        .add-zone { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(0, 161, 224, 0.1); }
+        .add-zone label { font-size: 0.7rem; color: var(--ds-blue-light); margin-bottom: 5px; display: block; }
+        .add-zone input, .add-zone select {
+            width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #333;
+            background: #0b0f19; color: white; border-radius: 4px; box-sizing: border-box; font-size: 0.8rem;
+        }
+        .btn-add { background: var(--ds-blue-mid); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 0.75rem; font-weight: bold; }
+        .btn-add:hover { background: var(--ds-blue-light); }
+
         .pool-item { background: rgba(255,255,255,0.03); padding: 10px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; border: 1px solid transparent; }
         .pool-item:hover { border-color: var(--ds-accent); background: rgba(0,161,224,0.1); }
         
-        /* Monthly Cards */
+        /* Footprint Cards */
         .month-card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .month-header { border-bottom: 1px solid var(--ds-blue-mid); margin-bottom: 15px; padding-bottom: 8px; color: var(--ds-accent); font-weight: bold; letter-spacing: 2px; }
         .log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .done-item { background: rgba(0, 161, 224, 0.08); padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 0.85rem; align-items: center; }
         .undo-btn { color: #ff4d4d; cursor: pointer; font-size: 1.2rem; padding: 0 5px; }
-        .article-input { width: 100%; border: 1px solid #333; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; color: var(--ds-accent); font-size: 0.9rem; box-sizing: border-box; }
+        
         .tag { font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; color: white; margin-right: 8px; font-weight: bold; }
         .CATIA { background: var(--catia); } .ENOVIA { background: var(--enovia); } .SIMULIA { background: var(--simulia); } .DELMIA { background: var(--delmia); } .OTHER { background: var(--other); }
-
-        /* Sync Tip */
-        .save-tip { position: fixed; bottom: 25px; right: 25px; background: var(--ds-accent); color: #000; padding: 10px 20px; border-radius: 30px; display: none; z-index: 1000; font-weight: bold; font-size: 0.85rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        
+        .article-input { width: 100%; border: 1px solid #333; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 6px; color: var(--ds-accent); font-size: 0.9rem; box-sizing: border-box; }
+        .save-tip { position: fixed; bottom: 25px; right: 25px; background: var(--ds-accent); color: #000; padding: 10px 20px; border-radius: 30px; display: none; z-index: 1000; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
     </style>
 </head>
 <body>
@@ -84,7 +95,7 @@
     <div class="executive-header">
         <div class="header-card">
             <div class="profile-content">
-                <img src="my_photo.jpg" class="photo" onerror="this.src='https://via.placeholder.com/80?text=Expert'">
+                <img src="my_photo.jpg" class="photo" onerror="this.src='https://via.placeholder.com/85?text=Expert'">
                 <div class="profile-main">
                     <div class="title-line-1">Personal Competency</div>
                     <div class="title-line-2">2026 ROADMAP</div>
@@ -104,16 +115,30 @@
     </div>
 
     <div class="sidebar">
-        <div style="font-size:0.75rem; color:var(--ds-blue-light); margin-bottom:15px; text-align:center; letter-spacing:1px;">--- RESOURCE POOL ---</div>
+        <div class="add-zone">
+            <label>➕ ADD NEW CERTIFICATION</label>
+            <select id="newBrand">
+                <option value="ENOVIA">ENOVIA</option>
+                <option value="CATIA">CATIA</option>
+                <option value="SIMULIA">SIMULIA</option>
+                <option value="DELMIA">DELMIA</option>
+                <option value="OTHER">OTHER</option>
+            </select>
+            <input type="text" id="newName" placeholder="Project name...">
+            <button class="btn-add" onclick="addNewCert()">ADD TO POOL</button>
+        </div>
+
+        <div style="font-size:0.75rem; color:#444; margin-bottom:15px; text-align:center; letter-spacing:1px;">--- RESOURCE POOL ---</div>
         <div id="certPool"></div>
     </div>
+
     <div id="footprint"></div>
 </div>
 
 <script>
     // --- 🛠 云端配置: 请填入你的信息 ---
     const GITHUB_CONFIG = {
-        token: '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', // 替换为你的 GitHub PAT
+       token: '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', // 替换为你的 GitHub PAT
         owner: 'Git-jasonmao',       // 替换为你的 GitHub 用户名
         repo: '2026-roadmap',       // 替换为仓库名
         issueId: 1                    // 替换为 Issue 编号
@@ -170,6 +195,17 @@
         }
     }
 
+    // --- 逻辑函数 ---
+    function addNewCert() {
+        const name = document.getElementById('newName').value;
+        if(!name) return;
+        const brand = document.getElementById('newBrand').value;
+        state.pool.push({ id: Date.now(), b: brand, n: name });
+        document.getElementById('newName').value = '';
+        updateUI();
+        sync('save'); // 同步到云端
+    }
+
     function initCharts() {
         const opt = { cutout: '80%', plugins: { legend: { display: false } }, animation: { duration: 800 } };
         certPie = new Chart(document.getElementById('certChart'), { type: 'doughnut', data: { datasets: [{ data: [0, 100], backgroundColor: ['#00f2ff', '#1a2a44'], borderWidth: 0 }] }, options: opt });
@@ -190,7 +226,7 @@
             .map(c => `<div class="pool-item" onclick="completeCert(${c.id})"><span class="tag ${c.b}">${c.b}</span>${c.n}</div>`).join('');
 
         const foot = document.getElementById('footprint'); foot.innerHTML = '';
-        for(let i=1; i<12; i++) { // FEB to DEC
+        for(let i=1; i<12; i++) { 
             const mNum = i + 1;
             const mC = state.pool.filter(c => state.completed[c.id] == mNum);
             const card = document.createElement('div'); card.className = 'month-card';
