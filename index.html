@@ -175,11 +175,12 @@ function _getAccess() {
     // --- ☁️ 同步逻辑 ---
 // --- ☁️ 同步逻辑 (已适配加密函数) ---
 async function sync(action = 'load') {
-    const token = _getAccess(); // 动态获取 Token
+    const token = _getAccess();
     const url = `https://api.github.com/repos/${_SECURITY_CREDENTIAL.o}/${_SECURITY_CREDENTIAL.r}/issues/${_SECURITY_CREDENTIAL.i}`;
     const headers = { 
         'Authorization': `token ${token}`, 
-        'Accept': 'application/vnd.github.v3+json' 
+        'Accept': 'application/vnd.github.v3+json',
+        'Cache-Control': 'no-cache'
     };
 
     showTip(action === 'load' ? "FETCHING..." : "UPLOADING...");
@@ -187,35 +188,40 @@ async function sync(action = 'load') {
     try {
         const res = await fetch(url, { headers });
         
-        // 防御性检查：如果是 401，说明 Token 还是被封了
         if (!res.ok) {
-            console.error("Auth Status:", res.status);
-            showTip(`AUTH ERROR: ${res.status}`);
+            // 如果出错，打印出详细信息
+            const errDetail = await res.json();
+            console.error("GitHub API Error:", res.status, errDetail.message);
+            showTip(`SYNC ERROR: ${res.status}`);
             return;
         }
 
         if (action === 'load') {
             const data = await res.json();
-            const cloudData = JSON.parse(data.body);
-            if (cloudData.completed) {
-                state = cloudData;
-                updateUI();
+            if (data.body) {
+                const cloudState = JSON.parse(data.body);
+                if (cloudState.completed) {
+                    state = cloudState;
+                    updateUI();
+                    document.getElementById('syncTime').innerText = `Cloud Sync: ${new Date().toLocaleTimeString()}`;
+                    showTip("SYNC SUCCESS ✅");
+                }
             }
         } else {
+            // 保存逻辑
             await fetch(url, {
-                method: 'PATCH', 
+                method: 'PATCH',
                 headers,
                 body: JSON.stringify({ body: JSON.stringify(state, null, 2) })
             });
+            document.getElementById('syncTime').innerText = `Cloud Sync: ${new Date().toLocaleTimeString()}`;
+            showTip("SAVE SUCCESS ✅");
         }
-        document.getElementById('syncTime').innerText = `Cloud Sync: ${new Date().toLocaleTimeString()}`;
-        showTip("SYNC SUCCESS ✅");
     } catch (e) {
-        console.error("Critical Sync Error:", e);
-        showTip("SYNC ERROR ❌");
+        console.error("Critical Network Error:", e);
+        showTip("NETWORK ERROR ❌");
     }
 }
-
     // --- 逻辑函数 ---
     function addNewCert() {
         const name = document.getElementById('newName').value;
@@ -278,5 +284,6 @@ async function sync(action = 'load') {
 </body>
 
 </html>
+
 
 
