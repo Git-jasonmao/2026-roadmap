@@ -174,59 +174,59 @@ function _getAccess() {
 
     // --- ☁️ 同步逻辑 ---
 // --- ☁️ 同步逻辑 (已适配加密函数) ---
-async function sync(action = 'load') {
-    // 自动解密密钥
-    const token = _getAccess();
-    
-    // 增加调试日志：如果是在本地打开，直接给出警告
+async function sync(action = 'load', retryCount = 0) {
+    // 1. 环境预检：禁止本地文件运行同步
     if (window.location.protocol === 'file:') {
-        alert("⚠️ 请注意：本地打开无法同步云端，请上传至 GitHub Pages 访问！");
-        showTip("ENVIRONMENT ERROR");
+        console.error("Cloud sync is disabled in local file environment.");
+        showTip("LOCAL MODE: NO SYNC");
         return;
     }
 
+    const token = _getAccess();
     const url = `https://api.github.com/repos/${_SECURITY_CREDENTIAL.o}/${_SECURITY_CREDENTIAL.r}/issues/${_SECURITY_CREDENTIAL.i}`;
     
-    // 增加缓存控制，防止网络响应滞后
-    const headers = { 
-        'Authorization': `token ${token}`, 
-        'Accept': 'application/vnd.github.v3+json',
-        'Cache-Control': 'no-cache'
-    };
-
-    showTip(action === 'load' ? "CONNECTING..." : "UPLOADING...");
+    // 增加随机数防止缓存干扰
+    const finalUrl = `${url}?t=${Date.now()}`;
 
     try {
-        // 增加 10 秒超时机制，防止一直 Initializing
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
 
-        const res = await fetch(url, { headers, signal: controller.signal });
-        clearTimeout(timeout);
-        
-        if (!res.ok) {
-            const err = await res.json();
-            console.error("API ERROR:", res.status, err.message);
-            showTip(`STATUS: ${res.status}`);
-            return;
-        }
+        const res = await fetch(finalUrl, {
+            method: action === 'load' ? 'GET' : 'PATCH',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            signal: controller.signal,
+            body: action === 'save' ? JSON.stringify({ body: JSON.stringify(state) }) : null
+        });
 
-        const data = await res.json();
-        // 处理数据流
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         if (action === 'load') {
-            const cloudState = JSON.parse(data.body);
-            if (cloudState && cloudState.completed) {
-                state = cloudState;
+            const data = await res.json();
+            if (data.body) {
+                state = JSON.parse(data.body);
                 updateUI();
                 document.getElementById('syncTime').innerText = `Sync OK: ${new Date().toLocaleTimeString()}`;
             }
-        } else {
-            showTip("CLOUD SAVED ✅");
         }
+        showTip("SUCCESS ✅");
+
     } catch (e) {
-        console.error("Flow Error:", e);
-        // 如果是因为网络被墙或断网
-        showTip("CONNECTION LOST ❌");
+        console.warn(`Sync Attempt ${retryCount + 1} failed:`, e.message);
+        
+        // 自动重试机制：如果是网络抖动，尝试重试 2 次
+        if (retryCount < 2) {
+            setTimeout(() => sync(action, retryCount + 1), 2000);
+        } else {
+            showTip("NETWORK ERROR ❌");
+            document.getElementById('syncTime').innerText = "Sync Failed: Connection Lost";
+        }
     }
 }
     // --- 逻辑函数 ---
@@ -291,6 +291,7 @@ async function sync(action = 'load') {
 </body>
 
 </html>
+
 
 
 
